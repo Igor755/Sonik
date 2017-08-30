@@ -1,26 +1,36 @@
 package com.example.imetlin.sonik;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 
-import com.example.imetlin.sonik.fragments.RecyclerView;
+import com.example.imetlin.sonik.fragments.RecyclerViewPlace;
+import com.example.imetlin.sonik.fragments.MyUnknown;
 
 public class MainActivity extends AppCompatActivity {
 
-    public Fragment recyclerview;
+    public Fragment recyclable, markdown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        recyclable = new RecyclerViewPlace();
+        markdown = new MyUnknown();
+
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .add(R.id.fragment_container, recyclable)
+                .commit();
+
 
 
 
