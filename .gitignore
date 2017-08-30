@@ -1,0 +1,15 @@
+
+local.properties
+.DS_Store
+/.gradle/
+/bin/
+/proguard/
+/out/
+/.idea/
+/gen/
+/build
+/captures
+*.iml
+
+
+
