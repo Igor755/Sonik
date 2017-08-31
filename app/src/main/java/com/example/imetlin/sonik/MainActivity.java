@@ -13,7 +13,7 @@ import com.example.imetlin.sonik.fragments.MyUnknown;
 
 public class MainActivity extends AppCompatActivity {
 
-    public Fragment recyclable, markdown;
+    public Fragment recylist, markdown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,12 +23,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        recyclable = new RecyclerViewPlace();
+        recylist = new RecyclerViewPlace();
         markdown = new MyUnknown();
 
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .add(R.id.fragment_container, recyclable)
+                .add(R.id.fragment_container, recylist)
                 .commit();
 
 

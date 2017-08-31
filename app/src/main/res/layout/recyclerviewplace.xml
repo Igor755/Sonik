@@ -20,9 +20,11 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="20dp"
-        android:src="@android:drawable/ic_input_add"
+        android:scaleType="center"
+        android:src="@android:drawable/ic_menu_mapmode"
         app:backgroundTint="@color/colorPrimaryDark"
-        app:elevation="4dp"
+        app:elevation="8dp"
+        app:rippleColor="@color/colorPrimary"
         tools:backgroundTint="@color/colorPrimaryDark"
         tools:ignore="RtlHardcoded" />
 
