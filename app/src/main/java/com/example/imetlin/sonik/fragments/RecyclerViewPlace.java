@@ -4,54 +4,38 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-//import com.example.imetlin.sonik.GoogleMaps;
+import com.example.imetlin.sonik.GoogleMaps;
 
 import com.example.imetlin.sonik.R;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 
-public class RecyclerViewPlace extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private OnFragmentInteractionListener mListener;
-
-    public RecyclerViewPlace() {
-        // Required empty public constructor
-    }
+public class RecyclerViewPlace extends Fragment implements GoogleApiClient.OnConnectionFailedListener,GoogleApiClient.ConnectionCallbacks {
 
 
-    public static RecyclerViewPlace newInstance(String param1, String param2) {
-        RecyclerViewPlace fragment = new RecyclerViewPlace();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    private static int PERMISSION_REQUEST_FINE_LOCATION = 111;
+    private static int PLACE_PICKER_REQUEST = 1;
+
+    //private PlaceListAdapter mAdapter;
+    private RecyclerView mRecyclerView;
+    private boolean mIsEnabled;
+    private GoogleApiClient mClient;
 
 
-    }
 
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,9 +50,9 @@ public class RecyclerViewPlace extends Fragment {
             @Override
             public void onClick(View view) {
 
-               // Intent intent = new Intent(getContext(), GoogleMaps.class);
+               Intent intent = new Intent(getContext(), GoogleMaps.class);
                 //intent.putExtra("newsURL", uri);
-               // startActivityForResult(intent, 1);
+               startActivityForResult(intent, 1);
 
             }
         });
@@ -79,18 +63,19 @@ public class RecyclerViewPlace extends Fragment {
 
 
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
     }
 
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 
 
