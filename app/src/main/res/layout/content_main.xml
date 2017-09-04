@@ -4,13 +4,28 @@
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list_item"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent" />
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:layout_marginTop="70dp"></FrameLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="20dp"
+        android:scaleType="center"
+        android:src="@android:drawable/ic_menu_mapmode"
+        app:backgroundTint="@color/colorPrimaryDark"
+        app:elevation="8dp"
+        app:rippleColor="@color/colorPrimary"
+        tools:backgroundTint="@color/colorPrimaryDark"
+        tools:ignore="RtlHardcoded" />
 
 </LinearLayout>
