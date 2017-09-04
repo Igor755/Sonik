@@ -195,14 +195,11 @@ public class MainActivity extends AppCompatActivity implements
                 Log.i(TAG, "No place selected");
                 return;
             }
-
             String placeID = place.getId();
-
             // Insert a new place into DB
             ContentValues contentValues = new ContentValues();
             contentValues.put(MyBase.PlaceEntry.COLUMN_PLACE_ID, placeID);
             getContentResolver().insert(MyBase.PlaceEntry.CONTENT_URI, contentValues);
-
             // Get live data information
             refreshPlacesData();
         }

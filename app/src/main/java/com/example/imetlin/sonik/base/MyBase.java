@@ -9,7 +9,7 @@ import android.provider.BaseColumns;
 
 public class MyBase {
 
-    public static final String AUTHORITY = "com.example.imetlin.sonik";
+    public static final String AUTHORITY = "com.example.imetlin";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
     public static final String PATH_PLACES = "places";
 
