@@ -12,7 +12,7 @@ import com.example.imetlin.sonik.base.MyBase.PlaceEntry;
 public class PlaceDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "location.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 1;
 
 
     public PlaceDbHelper(Context context) {

@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
-            onPlaceButtonCliced(view);
+            onPlaceButtonCliKed(view);
                 LoadingWindow();
 
             }
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
     }
 
-    public void onPlaceButtonCliced(View view) {
+    public void onPlaceButtonCliKed(View view) {
 
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
