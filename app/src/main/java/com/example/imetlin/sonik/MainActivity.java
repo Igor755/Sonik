@@ -19,7 +19,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.app.ProgressDialog;
 
 import com.example.imetlin.sonik.adapter.PlaceListAdapter;
 import com.example.imetlin.sonik.base.MyBase;
@@ -40,6 +42,7 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class MainActivity extends AppCompatActivity implements
         ConnectionCallbacks,
         OnConnectionFailedListener {
@@ -53,6 +56,10 @@ public class MainActivity extends AppCompatActivity implements
     private RecyclerView mRecyclerView;
     private boolean mIsEnabled;
     private GoogleApiClient mClient;
+    private int mCycle = 0;
+    private ProgressBar progressBar;
+    private ProgressDialog Indicator;
+    private final int totalProgressTime = 20;
 
 
     @Override
@@ -72,43 +79,20 @@ public class MainActivity extends AppCompatActivity implements
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add);
         assert fab != null;
 
+
         fab.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
 
-/*
-                if (ActivityCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getBaseContext(), getString(R.string.need_location_permission_message), Toast.LENGTH_LONG).show();
-                    return;
-                }
-                try {
-                    PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-                  // Intent i = builder.build();
-                   //startActivityForResult(i, PLACE_PICKER_REQUEST);
-                } catch (GooglePlayServicesRepairableException e) {
-                    Log.e(TAG, String.format("GooglePlayServices Not Available [%s]", e.getMessage()));
-                } catch (GooglePlayServicesNotAvailableException e) {
-                    Log.e(TAG, String.format("GooglePlayServices Not Available [%s]", e.getMessage()));
-                } catch (Exception e) {
-                    Log.e(TAG, String.format("PlacePicker Exception: %s", e.getMessage()));
-                }
-                */
 
 
-
+            onPlaceButtonCliced(view);
+                LoadingWindow();
 
             }
         });
-/*
-        recylist = new RecyclerViewPlace();
-        markdown = new MyUnknown();
 
-        FragmentManager fm = getSupportFragmentManager();
-        fm.beginTransaction()
-                .add(R.id.fragment_container, recylist)
-                .commit();*/
 
         mClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -117,12 +101,31 @@ public class MainActivity extends AppCompatActivity implements
                 .addApi(Places.GEO_DATA_API)
                 .enableAutoManage(this, this)
                 .build();
+    }
+
+    public void onPlaceButtonCliced(View view) {
 
 
-
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, getString(R.string.need_location_permission_message), Toast.LENGTH_LONG).show();
+            return;
+        }
+        try {
+            PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+             Intent i = builder.build(this);
+            startActivityForResult(i, PLACE_PICKER_REQUEST);
+        } catch (GooglePlayServicesRepairableException e) {
+            Log.e(TAG, String.format("GooglePlayServices Not Available [%s]", e.getMessage()));
+        } catch (GooglePlayServicesNotAvailableException e) {
+            Log.e(TAG, String.format("GooglePlayServices Not Available [%s]", e.getMessage()));
+        } catch (Exception e) {
+            Log.e(TAG, String.format("PlacePicker Exception: %s", e.getMessage()));
+        }
 
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -164,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements
         Log.e(TAG, "API Client Connection Failed!");
 
     }
+
     public void refreshPlacesData() {
         Uri uri = MyBase.PlaceEntry.CONTENT_URI;
         Cursor data = getContentResolver().query(
@@ -188,7 +192,9 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
     }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
             Place place = PlacePicker.getPlace(this, data);
             if (place == null) {
@@ -204,4 +210,46 @@ public class MainActivity extends AppCompatActivity implements
             refreshPlacesData();
         }
     }
-}
+    public void LoadingWindow(){
+        Indicator = new ProgressDialog(this);
+        //Настраиваем для ProgressDialog название его окна:
+        Indicator.setMessage(getResources().getString(R.string.load));
+        //Настраиваем стиль отображаемого окна:
+        Indicator.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        //Выставляем прогресс задачи на 0 позицию:
+        Indicator.setProgress(0);
+        //Устанавливаем максимально возможное значение в работе цикла:
+        Indicator.setMax(totalProgressTime );
+        Indicator.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        //Отображаем ProgressDialog:
+        Indicator.show();
+
+        //Создаем параллельный поток с выполнением цикла, который будет
+        //работать, пока не достигнет значения в 20 (totalProgressTime):
+        new Thread(new Runnable() {
+            @Override
+            public void run(){
+                int counter = 0;
+                while(counter < totalProgressTime ){
+                    try {
+                        //Устанавливаем время задержки между итерациями
+                        //цикла (между действиями цикла):
+                        Thread.sleep(300);
+                        counter ++;
+                        //Обновляем индикатор прогресса до значения counter:
+                        Indicator.setProgress(counter);
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+
+                //При завершении работы цикла закрываем наш ProgressDialog:
+                Indicator.dismiss();
+            }
+        }).start();
+    }
+    }
+

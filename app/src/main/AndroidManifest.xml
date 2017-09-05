@@ -24,7 +24,8 @@
         </activity>
         <provider
             android:authorities="com.example.imetlin.sonik"
-            android:name="com.example.imetlin.sonik.base.PlaceContentProvider">
+            android:name="com.example.imetlin.sonik.base.PlaceContentProvider"
+            android:exported="false">
         </provider>
     </application>
 

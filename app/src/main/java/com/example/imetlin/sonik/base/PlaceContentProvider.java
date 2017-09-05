@@ -22,9 +22,10 @@ public class PlaceContentProvider extends ContentProvider {
     public static final int PLACES = 100;
     public static final int PLACE_WITH_ID = 101;
 
-    public static final UriMatcher mUriMatcher = buildUriMatcher();
+    private static final UriMatcher mUriMatcher = buildUriMatcher();
+    private static final String TAG = PlaceContentProvider.class.getName();
 
-    private static UriMatcher buildUriMatcher() {
+    public static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(MyBase.AUTHORITY, MyBase.PATH_PLACES, PLACES);
         uriMatcher.addURI(MyBase.AUTHORITY, MyBase.PATH_PLACES + "/#", PLACE_WITH_ID);
@@ -44,9 +45,9 @@ public class PlaceContentProvider extends ContentProvider {
 
 
 
-    @Nullable
+
     @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
+    public Uri insert( Uri uri,  ContentValues contentValues) {
         final SQLiteDatabase db = mPlaceDbHelper.getWritableDatabase();
 
         int match = mUriMatcher.match(uri);
@@ -87,7 +88,7 @@ public class PlaceContentProvider extends ContentProvider {
                         sortOrder);
                 break;
             default:
-                throw new UnsupportedOperationException("Unknoun uri:" + uri);
+                throw new UnsupportedOperationException("Unknown uri:" + uri);
 
         }
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
@@ -97,7 +98,7 @@ public class PlaceContentProvider extends ContentProvider {
 
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
+    public int delete(@NonNull Uri uri,  String selection,  String[] selectionArgs) {
         final SQLiteDatabase db = mPlaceDbHelper.getWritableDatabase();
         int match = mUriMatcher.match(uri);
         int placesDeleted;
@@ -117,7 +118,7 @@ public class PlaceContentProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
+    public int update(@NonNull Uri uri,  ContentValues contentValues,  String selection,  String[] selectionArgs) {
 
         final SQLiteDatabase db = mPlaceDbHelper.getWritableDatabase();
         int match = mUriMatcher.match(uri);
