@@ -27,7 +27,7 @@
             android:layout_gravity="fill"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
-            android:src="@drawable/ic_add_circle_outline_white_18dp" />
+            android:src="@drawable/imagesflag" />
 
         <LinearLayout
             android:layout_width="match_parent"
