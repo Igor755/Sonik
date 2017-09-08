@@ -1,5 +1,6 @@
 package com.example.imetlin.sonik;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements
         }
         try {
             PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-             Intent i = builder.build(this);
+            Intent i = builder.build(this);
             startActivityForResult(i, PLACE_PICKER_REQUEST);
         } catch (GooglePlayServicesRepairableException e) {
             Log.e(TAG, String.format("GooglePlayServices Not Available [%s]", e.getMessage()));
@@ -192,24 +193,26 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
     }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
-            Place place = PlacePicker.getPlace(this, data);
-            if (place == null) {
-                Log.i(TAG, "No place selected");
-                return;
-            }
+
+            Place place = PlacePicker.getPlace(this,data);
+
             String placeID = place.getId();
             // Insert a new place into DB
             ContentValues contentValues = new ContentValues();
             contentValues.put(MyBase.PlaceEntry.COLUMN_PLACE_ID, placeID);
+            //setContentView(view);
             getContentResolver().insert(MyBase.PlaceEntry.CONTENT_URI, contentValues);
             // Get live data information
+            System.out.println("newUri");
+
             refreshPlacesData();
+
+            }
         }
-    }
     public void LoadingWindow(){
         Indicator = new ProgressDialog(this);
         //Настраиваем для ProgressDialog название его окна:

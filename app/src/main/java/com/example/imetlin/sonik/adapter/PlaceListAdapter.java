@@ -39,6 +39,7 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.Plac
     public void onBindViewHolder(PlaceViewHolder holder, int position) {
         String placeName = mPlaces.get(position).getName().toString();
         String placeAdress = mPlaces.get(position).getAddress().toString();
+       // String placeImage = mPlaces.get(position).getP
         holder.nameTextView.setText(placeName);
         holder.adressTextView.setText(placeAdress);
 
