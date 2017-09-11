@@ -5,7 +5,10 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,16 +19,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.app.ProgressDialog;
 
 import com.example.imetlin.sonik.adapter.PlaceListAdapter;
 import com.example.imetlin.sonik.base.MyBase;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -35,13 +43,21 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.GeoDataApi;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
+import com.google.android.gms.location.places.PlacePhotoMetadataResult;
+import com.google.android.gms.location.places.PlacePhotoResult;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.location.places.PlacePhotoMetadata;
+import com.example.imetlin.sonik.R;
+
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -56,11 +72,13 @@ public class MainActivity extends AppCompatActivity implements
     private PlaceListAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private boolean mIsEnabled;
-    private GoogleApiClient mClient;
+    public GoogleApiClient mClient;
     private int mCycle = 0;
     private ProgressBar progressBar;
     private ProgressDialog Indicator;
     private final int totalProgressTime = 20;
+    private ImageView myImage;
+    private String placeID;
 
 
     @Override
@@ -71,10 +89,17 @@ public class MainActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         mRecyclerView = (RecyclerView) findViewById(R.id.list_item);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new PlaceListAdapter(this, null);
         mRecyclerView.setAdapter(mAdapter);
+
+
+        LayoutInflater ltInflater = getLayoutInflater();
+        View view = ltInflater.inflate(R.layout.one_list_item, null, false);
+        //ViewGroup.LayoutParams lp = view.getLayoutParams();
+        myImage = (ImageView) view.findViewById(R.layout.one_list_item);
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add);
@@ -87,9 +112,9 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
 
 
-
-            onPlaceButtonCliKed(view);
+                onPlaceButtonCliKed(view);
                 LoadingWindow();
+
 
             }
         });
@@ -102,7 +127,95 @@ public class MainActivity extends AppCompatActivity implements
                 .addApi(Places.GEO_DATA_API)
                 .enableAutoManage(this, this)
                 .build();
+        
+
     }
+    abstract class GooglePhoto extends AsyncTask<String, Void, GooglePhoto.AttributedPhoto> {
+
+        private int mHeight;
+
+        private int mWidth;
+
+        public GooglePhoto(int width, int height) {
+            mHeight = height;
+            mWidth = width;
+        }
+
+        /**
+         * Loads the first photo for a place id from the Geo Data API.
+         * The place id must be the first (and only) parameter.
+         */
+        @Override
+        protected AttributedPhoto doInBackground(String... params) {
+            if (params.length != 1) {
+                return null;
+            }
+            final String placeId = params[0];
+            GooglePhoto.AttributedPhoto attributedPhoto = null;
+
+            PlacePhotoMetadataResult result = Places.GeoDataApi
+                    .getPlacePhotos(mClient, placeId).await();
+
+            if (result.getStatus().isSuccess()) {
+                PlacePhotoMetadataBuffer photoMetadataBuffer = result.getPhotoMetadata();
+                if (photoMetadataBuffer.getCount() > 0 && !isCancelled()) {
+                    // Get the first bitmap and its attributions.
+                    PlacePhotoMetadata photo = photoMetadataBuffer.get(0);
+                    CharSequence attribution = photo.getAttributions();
+                    // Load a scaled bitmap for this photo.
+                    Bitmap image = photo.getScaledPhoto(mClient, mWidth, mHeight).await()
+                            .getBitmap();
+
+                    attributedPhoto = new GooglePhoto.AttributedPhoto(attribution, image);
+                }
+                // Release the PlacePhotoMetadataBuffer.
+                photoMetadataBuffer.release();
+            }
+            return attributedPhoto;
+        }
+
+        /**
+         * Holder for an image and its attribution.
+         */
+        public class AttributedPhoto {
+
+            public final CharSequence attribution;
+
+            public final Bitmap bitmap;
+
+            public AttributedPhoto(CharSequence attribution, Bitmap bitmap) {
+                this.attribution = attribution;
+                this.bitmap = bitmap;
+            }
+        }
+
+
+        public void placePhotosTask() {
+            final String placeId = "ChIJrTLr-GyuEmsRBfy61i59si0"; // Australian Cruise Group
+
+            // Create a new AsyncTask that displays the bitmap and attribution once loaded.
+            new GooglePhoto(myImage.getWidth(), myImage.getHeight()) {
+                @Override
+                protected void onPreExecute() {
+                    // Display a temporary image to show while bitmap is loading.
+                    //mImageView.setImageResource(R.drawable.empty_photo);
+                }
+
+                @Override
+                protected void onPostExecute(GooglePhoto.AttributedPhoto attributedPhoto) {
+                    if (attributedPhoto != null) {
+                        // Photo has been loaded, display it.
+                        myImage.setImageBitmap(attributedPhoto.bitmap);
+
+
+                    }
+                }
+            }.execute(placeId);
+        }
+
+
+    }
+
 
     public void onPlaceButtonCliKed(View view) {
 
@@ -193,27 +306,43 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == PLACE_PICKER_REQUEST && resultCode == RESULT_OK) {
 
-            Place place = PlacePicker.getPlace(this,data);
+            Place place = PlacePicker.getPlace(this, data);
 
             String placeID = place.getId();
             // Insert a new place into DB
             ContentValues contentValues = new ContentValues();
             contentValues.put(MyBase.PlaceEntry.COLUMN_PLACE_ID, placeID);
-            //setContentView(view);
+
+
+
+
+
+
+
+
+
+
+
             getContentResolver().insert(MyBase.PlaceEntry.CONTENT_URI, contentValues);
             // Get live data information
             System.out.println("newUri");
 
             refreshPlacesData();
 
-            }
         }
-    public void LoadingWindow(){
+    }
+
+
+
+
+
+    public void LoadingWindow() {
         Indicator = new ProgressDialog(this);
         //Настраиваем для ProgressDialog название его окна:
         Indicator.setMessage(getResources().getString(R.string.load));
@@ -222,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements
         //Выставляем прогресс задачи на 0 позицию:
         Indicator.setProgress(0);
         //Устанавливаем максимально возможное значение в работе цикла:
-        Indicator.setMax(totalProgressTime );
+        Indicator.setMax(totalProgressTime);
         Indicator.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         //Отображаем ProgressDialog:
         Indicator.show();
@@ -231,14 +360,14 @@ public class MainActivity extends AppCompatActivity implements
         //работать, пока не достигнет значения в 20 (totalProgressTime):
         new Thread(new Runnable() {
             @Override
-            public void run(){
+            public void run() {
                 int counter = 0;
-                while(counter < totalProgressTime ){
+                while (counter < totalProgressTime) {
                     try {
                         //Устанавливаем время задержки между итерациями
                         //цикла (между действиями цикла):
                         Thread.sleep(300);
-                        counter ++;
+                        counter++;
                         //Обновляем индикатор прогресса до значения counter:
                         Indicator.setProgress(counter);
 
@@ -254,5 +383,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         }).start();
     }
-    }
+
+}
 
