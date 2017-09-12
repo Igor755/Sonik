@@ -127,7 +127,9 @@ public class MainActivity extends AppCompatActivity implements
                 .addApi(Places.GEO_DATA_API)
                 .enableAutoManage(this, this)
                 .build();
-        
+
+
+
 
     }
     abstract class GooglePhoto extends AsyncTask<String, Void, GooglePhoto.AttributedPhoto> {
@@ -189,15 +191,19 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
 
+    }
+        public void placePhotosTask(String placeid) {
 
-        public void placePhotosTask() {
-            final String placeId = "ChIJrTLr-GyuEmsRBfy61i59si0"; // Australian Cruise Group
+            this.placeID = placeid;
+
+            //placeId = placeID;
+            //final String placeId = "ChIJrTLr-GyuEmsRBfy61i59si0"; // Australian Cruise Group
 
             // Create a new AsyncTask that displays the bitmap and attribution once loaded.
             new GooglePhoto(myImage.getWidth(), myImage.getHeight()) {
                 @Override
                 protected void onPreExecute() {
-                    // Display a temporary image to show while bitmap is loading.
+                    //Display a temporary image to show while bitmap is loading.
                     //mImageView.setImageResource(R.drawable.empty_photo);
                 }
 
@@ -210,11 +216,11 @@ public class MainActivity extends AppCompatActivity implements
 
                     }
                 }
-            }.execute(placeId);
+            }.execute(placeid);
         }
 
 
-    }
+
 
 
     public void onPlaceButtonCliKed(View view) {
@@ -250,17 +256,20 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id._action_close:
+                finishAffinity();
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
 
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -321,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
+            placePhotosTask(placeID);
 
 
 
