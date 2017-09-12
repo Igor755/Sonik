@@ -1,12 +1,11 @@
 package com.example.imetlin.sonik;
 
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,18 +21,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v4.app.Fragment;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.app.ProgressDialog;
 
 import com.example.imetlin.sonik.adapter.PlaceListAdapter;
 import com.example.imetlin.sonik.base.MyBase;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -43,21 +37,16 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.GeoDataApi;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.PlacePhotoMetadata;
 import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
 import com.google.android.gms.location.places.PlacePhotoMetadataResult;
-import com.google.android.gms.location.places.PlacePhotoResult;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.google.android.gms.location.places.PlacePhotoMetadata;
-import com.example.imetlin.sonik.R;
-
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -106,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements
         assert fab != null;
 
 
+
+
         fab.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -129,9 +120,9 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
 
 
-
-
     }
+    /*
+
     abstract class GooglePhoto extends AsyncTask<String, Void, GooglePhoto.AttributedPhoto> {
 
         private int mHeight;
@@ -143,10 +134,7 @@ public class MainActivity extends AppCompatActivity implements
             mWidth = width;
         }
 
-        /**
-         * Loads the first photo for a place id from the Geo Data API.
-         * The place id must be the first (and only) parameter.
-         */
+
         @Override
         protected AttributedPhoto doInBackground(String... params) {
             if (params.length != 1) {
@@ -176,9 +164,7 @@ public class MainActivity extends AppCompatActivity implements
             return attributedPhoto;
         }
 
-        /**
-         * Holder for an image and its attribution.
-         */
+
         public class AttributedPhoto {
 
             public final CharSequence attribution;
@@ -192,36 +178,36 @@ public class MainActivity extends AppCompatActivity implements
         }
 
     }
-        public void placePhotosTask(String placeid) {
 
-            this.placeID = placeid;
+    public void placePhotosTask(String placeid)
 
-            //placeId = placeID;
-            //final String placeId = "ChIJrTLr-GyuEmsRBfy61i59si0"; // Australian Cruise Group
+    {
 
-            // Create a new AsyncTask that displays the bitmap and attribution once loaded.
-            new GooglePhoto(myImage.getWidth(), myImage.getHeight()) {
-                @Override
-                protected void onPreExecute() {
-                    //Display a temporary image to show while bitmap is loading.
-                    //mImageView.setImageResource(R.drawable.empty_photo);
+        this.placeID = placeid;
+        System.out.println(placeID);
+        //placeId = placeID;
+        //final String placeId = "ChIJrTLr-GyuEmsRBfy61i59si0"; // Australian Cruise Group
+
+        // Create a new AsyncTask that displays the bitmap and attribution once loaded.
+        new GooglePhoto(myImage.getWidth(), myImage.getHeight()) {
+            @Override
+            protected void onPreExecute() {
+                //Display a temporary image to show while bitmap is loading.
+                myImage.setImageResource(R.drawable.gens_9545);
+            }
+
+            @Override
+            protected void onPostExecute(GooglePhoto.AttributedPhoto attributedPhoto) {
+                if (attributedPhoto != null) {
+                    // Photo has been loaded, display it.
+                    myImage.setImageBitmap(attributedPhoto.bitmap);
+
+
                 }
-
-                @Override
-                protected void onPostExecute(GooglePhoto.AttributedPhoto attributedPhoto) {
-                    if (attributedPhoto != null) {
-                        // Photo has been loaded, display it.
-                        myImage.setImageBitmap(attributedPhoto.bitmap);
-
-
-                    }
-                }
-            }.execute(placeid);
-        }
-
-
-
-
+            }
+        }.execute(placeid);
+    }
+*/
 
     public void onPlaceButtonCliKed(View view) {
 
@@ -329,27 +315,16 @@ public class MainActivity extends AppCompatActivity implements
             contentValues.put(MyBase.PlaceEntry.COLUMN_PLACE_ID, placeID);
 
 
-
-            placePhotosTask(placeID);
-
-
-
-
-
-
-
-
             getContentResolver().insert(MyBase.PlaceEntry.CONTENT_URI, contentValues);
             // Get live data information
-            System.out.println("newUri");
+
+            //placePhotosTask(placeID);
+
 
             refreshPlacesData();
 
         }
     }
-
-
-
 
 
     public void LoadingWindow() {

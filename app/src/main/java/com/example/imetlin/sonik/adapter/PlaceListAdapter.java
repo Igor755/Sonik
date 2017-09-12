@@ -1,14 +1,17 @@
 package com.example.imetlin.sonik.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.imetlin.sonik.R;
 import com.google.android.gms.location.places.PlaceBuffer;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by i.metlin on 04.09.2017.
@@ -39,7 +42,10 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.Plac
     public void onBindViewHolder(PlaceViewHolder holder, int position) {
         String placeName = mPlaces.get(position).getName().toString();
         String placeAdress = mPlaces.get(position).getAddress().toString();
-       // String placeImage = mPlaces.get(position).getP
+        String placeImage = mPlaces.get(position).getPlaceTypes().toString();
+
+        Picasso.with(mContext).load(mPlaces.get(position).getPlaceTypes().toString()).into(holder.imageView.setImageDrawable(Drawable.createFromPath(placeImage)));
+        holder.imageView.setImageDrawable(Drawable.createFromPath(placeImage));
         holder.nameTextView.setText(placeName);
         holder.adressTextView.setText(placeAdress);
 
@@ -61,12 +67,14 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.Plac
 
         TextView nameTextView;
         TextView adressTextView;
+        ImageView imageView;
 
         public PlaceViewHolder(View itemView){
             super(itemView);
 
             nameTextView = (TextView) itemView.findViewById(R.id.nameTextView);
             adressTextView = (TextView) itemView.findViewById(R.id.adressTextView);
+            imageView = (ImageView) itemView.findViewById(R.id.myImage);
         }
 
     }
