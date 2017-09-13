@@ -95,8 +95,6 @@ public class MainActivity extends AppCompatActivity implements
         assert fab != null;
 
 
-
-
         fab.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -315,7 +313,12 @@ public class MainActivity extends AppCompatActivity implements
             contentValues.put(MyBase.PlaceEntry.COLUMN_PLACE_ID, placeID);
 
 
+
+
             getContentResolver().insert(MyBase.PlaceEntry.CONTENT_URI, contentValues);
+
+
+            addPhoto(placeID);
             // Get live data information
 
             //placePhotosTask(placeID);
@@ -323,8 +326,59 @@ public class MainActivity extends AppCompatActivity implements
 
             refreshPlacesData();
 
+
+
         }
     }
+    public void addPhoto(final String placeid){
+
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int counter = 0;
+                while (counter < totalProgressTime) {
+                    try {
+                        //Устанавливаем время задержки между итерациями
+                        //цикла (между действиями цикла):
+                        Thread.sleep(300);
+                        counter++;
+                        //Обновляем индикатор прогресса до значения counter:
+                        Indicator.setProgress(counter);
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+
+
+                Indicator.dismiss();
+
+
+
+                PlacePhotoMetadataResult result = Places.GeoDataApi
+                        .getPlacePhotos(mClient, placeid).await();
+
+                PlacePhotoMetadataBuffer photoMetadataBuffer = null;
+                if (result != null && result.getStatus().isSuccess()) {
+                    photoMetadataBuffer = result.getPhotoMetadata();
+                }
+
+                PlacePhotoMetadata photo = photoMetadataBuffer.get(0);
+
+                Bitmap image = photo.getPhoto(mClient).await()
+                        .getBitmap();
+                CharSequence attribution = photo.getAttributions();
+                myImage.setImageResource(image.getHeight());
+            }
+        }).start();
+    }
+
+
+
 
 
     public void LoadingWindow() {
