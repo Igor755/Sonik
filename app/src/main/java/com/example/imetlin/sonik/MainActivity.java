@@ -367,12 +367,15 @@ public class MainActivity extends AppCompatActivity implements
                     photoMetadataBuffer = result.getPhotoMetadata();
                 }
 
+
+                System.out.println(placeid);
+
                 PlacePhotoMetadata photo = photoMetadataBuffer.get(0);
 
                 Bitmap image = photo.getPhoto(mClient).await()
                         .getBitmap();
                 CharSequence attribution = photo.getAttributions();
-                myImage.setImageResource(image.getHeight());
+                myImage.setImageBitmap(image);
             }
         }).start();
     }
