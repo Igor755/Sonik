@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements
             Place place = PlacePicker.getPlace(this, data);
 
             String placeID = place.getId();
-            placePhotosTask(placeID);
+
             // Insert a new place into DB
             ContentValues contentValues = new ContentValues();
             contentValues.put(MyBase.PlaceEntry.COLUMN_PLACE_ID, placeID);
@@ -232,12 +232,15 @@ public class MainActivity extends AppCompatActivity implements
             getContentResolver().insert(MyBase.PlaceEntry.CONTENT_URI, contentValues);
 
 
+
+
             // Get live data information
 
             //placePhotosTask(placeID);
 
 
             refreshPlacesData();
+            placePhotosTask(placeID);
 
 
 
@@ -264,6 +267,9 @@ public class MainActivity extends AppCompatActivity implements
                 return null;
             }
             placeID = params[0];
+
+
+
             AttributedPhoto attributedPhoto = null;
 
              result = Places.GeoDataApi
@@ -314,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
-        new PhotoTask(50, 50) {
+        new PhotoTask(myImage.getMaxWidth(), myImage.getHeight()) {
             @Override
             protected void onPreExecute() {
                 // Display a temporary image to show while bitmap is loading.
