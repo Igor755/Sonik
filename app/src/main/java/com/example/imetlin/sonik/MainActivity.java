@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements
     private final int totalProgressTime = 20;
     private ImageView myImage;
     private String placeID;
+    PlacePhotoMetadataResult result;
 
 
     @Override
@@ -85,10 +87,6 @@ public class MainActivity extends AppCompatActivity implements
         mRecyclerView.setAdapter(mAdapter);
 
 
-        LayoutInflater ltInflater = getLayoutInflater();
-        View view = ltInflater.inflate(R.layout.one_list_item, null, false);
-        //ViewGroup.LayoutParams lp = view.getLayoutParams();
-        myImage = (ImageView) view.findViewById(R.layout.one_list_item);
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_add);
@@ -119,93 +117,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
     }
-    /*
 
-    abstract class GooglePhoto extends AsyncTask<String, Void, GooglePhoto.AttributedPhoto> {
-
-        private int mHeight;
-
-        private int mWidth;
-
-        public GooglePhoto(int width, int height) {
-            mHeight = height;
-            mWidth = width;
-        }
-
-
-        @Override
-        protected AttributedPhoto doInBackground(String... params) {
-            if (params.length != 1) {
-                return null;
-            }
-            final String placeId = params[0];
-            GooglePhoto.AttributedPhoto attributedPhoto = null;
-
-            PlacePhotoMetadataResult result = Places.GeoDataApi
-                    .getPlacePhotos(mClient, placeId).await();
-
-            if (result.getStatus().isSuccess()) {
-                PlacePhotoMetadataBuffer photoMetadataBuffer = result.getPhotoMetadata();
-                if (photoMetadataBuffer.getCount() > 0 && !isCancelled()) {
-                    // Get the first bitmap and its attributions.
-                    PlacePhotoMetadata photo = photoMetadataBuffer.get(0);
-                    CharSequence attribution = photo.getAttributions();
-                    // Load a scaled bitmap for this photo.
-                    Bitmap image = photo.getScaledPhoto(mClient, mWidth, mHeight).await()
-                            .getBitmap();
-
-                    attributedPhoto = new GooglePhoto.AttributedPhoto(attribution, image);
-                }
-                // Release the PlacePhotoMetadataBuffer.
-                photoMetadataBuffer.release();
-            }
-            return attributedPhoto;
-        }
-
-
-        public class AttributedPhoto {
-
-            public final CharSequence attribution;
-
-            public final Bitmap bitmap;
-
-            public AttributedPhoto(CharSequence attribution, Bitmap bitmap) {
-                this.attribution = attribution;
-                this.bitmap = bitmap;
-            }
-        }
-
-    }
-
-    public void placePhotosTask(String placeid)
-
-    {
-
-        this.placeID = placeid;
-        System.out.println(placeID);
-        //placeId = placeID;
-        //final String placeId = "ChIJrTLr-GyuEmsRBfy61i59si0"; // Australian Cruise Group
-
-        // Create a new AsyncTask that displays the bitmap and attribution once loaded.
-        new GooglePhoto(myImage.getWidth(), myImage.getHeight()) {
-            @Override
-            protected void onPreExecute() {
-                //Display a temporary image to show while bitmap is loading.
-                myImage.setImageResource(R.drawable.gens_9545);
-            }
-
-            @Override
-            protected void onPostExecute(GooglePhoto.AttributedPhoto attributedPhoto) {
-                if (attributedPhoto != null) {
-                    // Photo has been loaded, display it.
-                    myImage.setImageBitmap(attributedPhoto.bitmap);
-
-
-                }
-            }
-        }.execute(placeid);
-    }
-*/
 
     public void onPlaceButtonCliKed(View view) {
 
@@ -308,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements
             Place place = PlacePicker.getPlace(this, data);
 
             String placeID = place.getId();
+            placePhotosTask(placeID);
             // Insert a new place into DB
             ContentValues contentValues = new ContentValues();
             contentValues.put(MyBase.PlaceEntry.COLUMN_PLACE_ID, placeID);
@@ -315,10 +228,10 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
+
             getContentResolver().insert(MyBase.PlaceEntry.CONTENT_URI, contentValues);
 
 
-            addPhoto(placeID);
             // Get live data information
 
             //placePhotosTask(placeID);
@@ -330,56 +243,96 @@ public class MainActivity extends AppCompatActivity implements
 
         }
     }
-    public void addPhoto(final String placeid){
+    abstract class PhotoTask extends AsyncTask<String, Void, PhotoTask.AttributedPhoto> {
 
+        private int mHeight;
 
+        private int mWidth;
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int counter = 0;
-                while (counter < totalProgressTime) {
-                    try {
-                        //Устанавливаем время задержки между итерациями
-                        //цикла (между действиями цикла):
-                        Thread.sleep(300);
-                        counter++;
-                        //Обновляем индикатор прогресса до значения counter:
-                        Indicator.setProgress(counter);
+        public PhotoTask(int width, int height) {
+            mHeight = height;
+            mWidth = width;
+        }
 
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-
-
-                Indicator.dismiss();
-
-
-
-                PlacePhotoMetadataResult result = Places.GeoDataApi
-                        .getPlacePhotos(mClient, placeid).await();
-
-                PlacePhotoMetadataBuffer photoMetadataBuffer = null;
-                if (result != null && result.getStatus().isSuccess()) {
-                    photoMetadataBuffer = result.getPhotoMetadata();
-                }
-
-
-                System.out.println(placeid);
-
-                PlacePhotoMetadata photo = photoMetadataBuffer.get(0);
-
-                Bitmap image = photo.getPhoto(mClient).await()
-                        .getBitmap();
-                CharSequence attribution = photo.getAttributions();
-                myImage.setImageBitmap(image);
+        /**
+         * Loads the first photo for a place id from the Geo Data API.
+         * The place id must be the first (and only) parameter.
+         */
+        @Override
+        protected AttributedPhoto doInBackground(String... params) {
+            if (params.length != 1) {
+                return null;
             }
-        }).start();
-    }
+            placeID = params[0];
+            AttributedPhoto attributedPhoto = null;
 
+             result = Places.GeoDataApi
+                    .getPlacePhotos(mClient, placeID).await();
+
+            if (result.getStatus().isSuccess()) {
+                PlacePhotoMetadataBuffer photoMetadataBuffer = result.getPhotoMetadata();
+                if (photoMetadataBuffer.getCount() > 0 && !isCancelled()) {
+                    // Get the first bitmap and its attributions.
+                    PlacePhotoMetadata photo = photoMetadataBuffer.get(0);
+                    CharSequence attribution = photo.getAttributions();
+                    // Load a scaled bitmap for this photo.
+                    Bitmap image = photo.getScaledPhoto(mClient, mWidth, mHeight).await()
+                            .getBitmap();
+
+                    attributedPhoto = new AttributedPhoto(attribution, image);
+                }
+                // Release the PlacePhotoMetadataBuffer.
+                photoMetadataBuffer.release();
+            }
+            return attributedPhoto;
+        }
+
+        /**
+         * Holder for an image and its attribution.
+         */
+        class AttributedPhoto {
+
+            public final CharSequence attribution;
+
+            public final Bitmap bitmap;
+
+            public AttributedPhoto(CharSequence attribution, Bitmap bitmap) {
+                this.attribution = attribution;
+                this.bitmap = bitmap;
+            }
+        }
+    }
+    private void placePhotosTask(String placeid) {
+
+
+
+
+        LayoutInflater ltInflater = getLayoutInflater();
+        View view = ltInflater.inflate(R.layout.one_list_item, null, false);
+        //ViewGroup.LayoutParams lp = view.getLayoutParams();
+        myImage = (ImageView) findViewById(R.id.myImage);
+
+
+
+        new PhotoTask(50, 50) {
+            @Override
+            protected void onPreExecute() {
+                // Display a temporary image to show while bitmap is loading.
+                //myImage.setImageResource(R.drawable.ic_add_circle_outline_white_48dp);
+            }
+
+            @Override
+            protected void onPostExecute(AttributedPhoto attributedPhoto) {
+                if (attributedPhoto != null) {
+
+                    myImage.setImageBitmap(attributedPhoto.bitmap);
+
+
+
+                }
+            }
+        }.execute(placeid);
+    }
 
 
 
