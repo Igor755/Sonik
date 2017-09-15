@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements
     private ImageView myImage;
     private String placeID;
     PlacePhotoMetadataResult result;
+    PlacePhotoMetadataBuffer photoMetadataBuffer;
 
 
     @Override
@@ -203,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements
         }
         PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi.getPlaceById(mClient,
                 guids.toArray(new String[guids.size()]));
+
         placeResult.setResultCallback(new ResultCallback<PlaceBuffer>() {
             @Override
             public void onResult(@NonNull PlaceBuffer places) {
@@ -232,15 +234,12 @@ public class MainActivity extends AppCompatActivity implements
             getContentResolver().insert(MyBase.PlaceEntry.CONTENT_URI, contentValues);
 
 
-
-
-            // Get live data information
-
-            //placePhotosTask(placeID);
-
+            placePhotosTask(placeID);
 
             refreshPlacesData();
-            placePhotosTask(placeID);
+
+
+
 
 
 
@@ -313,9 +312,6 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
-        LayoutInflater ltInflater = getLayoutInflater();
-        View view = ltInflater.inflate(R.layout.one_list_item, null, false);
-        //ViewGroup.LayoutParams lp = view.getLayoutParams();
         myImage = (ImageView) findViewById(R.id.myImage);
 
 
@@ -324,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             protected void onPreExecute() {
                 // Display a temporary image to show while bitmap is loading.
-                //myImage.setImageResource(R.drawable.ic_add_circle_outline_white_48dp);
+                myImage.setImageResource(R.drawable.ic_add_circle_outline_white_48dp);
             }
 
             @Override
@@ -384,6 +380,16 @@ public class MainActivity extends AppCompatActivity implements
             }
         }).start();
     }
+    protected void onDestroy() {
+        photoMetadataBuffer.release();
+        mClient.disconnect();
+        super.onDestroy();
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mClient.connect();
+    }
 }
 

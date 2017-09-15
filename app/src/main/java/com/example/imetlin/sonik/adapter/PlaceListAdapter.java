@@ -63,14 +63,17 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.Plac
 
     @Override
     public void onBindViewHolder(PlaceViewHolder holder, int position) {
+
+
+
         String placeName = mPlaces.get(position).getName().toString();
         String placeAdress = mPlaces.get(position).getAddress().toString();
         String placePhoto = mPlaces.get(position).getId().toString();
-        //Picasso.with(mContext).load(mPlaces.get(position).getId().toString()).into(holder.imageView.setImageResource(Integer.parseInt(placePhoto)));
+        Picasso.with(mContext).load(mPlaces.get(position).getId().toString());
 
         holder.nameTextView.setText(placeName);
         holder.adressTextView.setText(placeAdress);
-      //  holder.imageView.setImageResource(Uri.parse(placePhoto));
+        holder.imageView.setImageURI(Uri.parse(placePhoto));
 
 
        // PlacePhotoMetadataBuffer photoMetadataBuffer;
