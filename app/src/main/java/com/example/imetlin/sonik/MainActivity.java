@@ -226,11 +226,6 @@ public class MainActivity extends AppCompatActivity implements
             // Insert a new place into DB
             ContentValues contentValues = new ContentValues();
             contentValues.put(MyBase.PlaceEntry.COLUMN_PLACE_ID, placeID);
-
-
-
-
-
             getContentResolver().insert(MyBase.PlaceEntry.CONTENT_URI, contentValues);
 
 

@@ -1,114 +1,140 @@
 package com.example.imetlin.sonik.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
+import android.database.Cursor;
+
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.example.imetlin.sonik.R;
-import com.google.android.gms.location.places.PlaceBuffer;
+import com.example.imetlin.sonik.listeners.OnRecyclerClickListener;
+import com.example.imetlin.sonik.model.MyItemsJson;
 import com.squareup.picasso.Picasso;
-import com.example.imetlin.sonik.adapter.PlaceListAdapter;
-import com.example.imetlin.sonik.base.MyBase;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceBuffer;
-import com.google.android.gms.location.places.PlacePhotoMetadata;
-import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
-import com.google.android.gms.location.places.PlacePhotoMetadataResult;
-import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.PlacePicker;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
+
+//import static com.sonikpalms.intern.modelclass.MyItems.Category.Family;
 
 /**
- * Created by i.metlin on 04.09.2017.
+ * Created by i.metlin on 27.07.2017.
  */
 
-public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.PlaceViewHolder> {
+public class MyAdapter extends DataAdapter<MyAdapter.ViewHolder> {
 
-    private Context mContext;
-    private PlaceBuffer mPlaces;
 
-    public PlaceListAdapter(Context context, PlaceBuffer placeBuffer){
-        this.mContext = context;
-        this.mPlaces = placeBuffer;
+    private ArrayList<MyItemsJson> items;
+    private Context ctx;
+    private OnRecyclerClickListener listener;
 
+    public MyAdapter(Cursor cursor, Context context) {
+        super(context, cursor);
     }
 
+    public MyAdapter(Cursor cursor, Context ctx, OnRecyclerClickListener listener) {
+        super(ctx, cursor);
+        this.ctx = ctx;
+        this.listener = listener;
+    }
 
 
     @Override
-    public PlaceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MyAdapter.ViewHolder onCreateViewHolder(final ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_one_item, viewGroup, false);
+        final ViewHolder viewHolder = new ViewHolder(view);
 
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.one_list_item,parent,false);
-        return new PlaceViewHolder(view);
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (listener != null) {
+                    listener.onItemClick(view, viewHolder.getAdapterPosition(), getNews(viewHolder.getAdapterPosition()).getUrl());
+                    //view.setBackgroundColor(Color.rgb(150, 156, 255));
+
+
+                }
+            }
+        });
+
+
+        return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(PlaceViewHolder holder, int position) {
+    public void onBindViewHolder(MyAdapter.ViewHolder holder, Cursor cursor) {
 
+        holder.textViewTitle.setText(cursor.getString(cursor.getColumnIndex(Const.DB_COL_NAME)));
+        Picasso.with(ctx).load(cursor.getString(cursor.getColumnIndex(Const.DB_COL_URL_TO_IMAGE))).into(holder.imageViewUrlToImage);
+        //holder.textViewUrl.setText(cursor.getString(cursor.getColumnIndex(Const.DB_COL_URL)));
+        holder.textViewAuthor.setText(cursor.getString(cursor.getColumnIndex(Const.DB_COL_AUTHOR)));
+        holder.textViewDescription.setText(cursor.getString(cursor.getColumnIndex(Const.DB_COL_DESCRIPTION)));
+        holder.textViewPublishedAt.setText(cursor.getString(cursor.getColumnIndex(Const.DB_COL_PUBLISHEAT)));
 
-
-        String placeName = mPlaces.get(position).getName().toString();
-        String placeAdress = mPlaces.get(position).getAddress().toString();
-        String placePhoto = mPlaces.get(position).getId().toString();
-        Picasso.with(mContext).load(mPlaces.get(position).getId().toString());
-
-        holder.nameTextView.setText(placeName);
-        holder.adressTextView.setText(placeAdress);
-        holder.imageView.setImageURI(Uri.parse(placePhoto));
-
-
-       // PlacePhotoMetadataBuffer photoMetadataBuffer;
-       // PlacePhotoMetadata photo = photoMetadataBuffer.get(0);
-// Get a full-size bitmap for the photo.
-      //  Bitmap image = photo.getPhoto(mClient).await()
-            //    .getBitmap();
 
     }
-    public void SwapPlaces(PlaceBuffer newPlaces){
-        mPlaces = newPlaces;
-        if (mPlaces != null){
-            this.notifyDataSetChanged();
+
+    public MyItemsJson getNews(int position) {
+        Cursor cursor = getCursor();
+        MyItemsJson news = new MyItemsJson();
+
+        if (cursor.moveToPosition(position)) {
+            news.setTitle(cursor.getString(cursor.getColumnIndex(Const.DB_COL_NAME)));
+            news.setUrl(cursor.getString(cursor.getColumnIndex(Const.DB_COL_URL)));
+            news.setUrlToImage(cursor.getString(cursor.getColumnIndex(Const.DB_COL_URL_TO_IMAGE)));
+            news.setAuthor(cursor.getString(cursor.getColumnIndex(Const.DB_COL_AUTHOR)));
+            news.setDescription(cursor.getString(cursor.getColumnIndex(Const.DB_COL_DESCRIPTION)));
+            news.setPublishedAt(cursor.getString(cursor.getColumnIndex(Const.DB_COL_PUBLISHEAT)));
         }
+
+        return news;
     }
 
-    @Override
-    public int getItemCount() {
-        if (mPlaces == null)
-        return 0;
-        return mPlaces.getCount();
+
+    public ArrayList<MyItemsJson> getItems() {
+        return items;
     }
-    class PlaceViewHolder extends RecyclerView.ViewHolder{
 
-        TextView nameTextView;
-        TextView adressTextView;
-        ImageView imageView;
+    public void setItems(ArrayList<MyItemsJson> items) {
+        this.items = items;
+    }
 
-        public PlaceViewHolder(View itemView){
+
+    public class ViewHolder extends RecyclerView.ViewHolder  {
+
+        ImageView imageViewUrlToImage;
+
+
+        TextView textViewPublishedAt;
+        TextView textViewUrl;
+        TextView textViewDescription;
+        TextView textViewTitle;
+        TextView textViewAuthor;
+
+
+        public ViewHolder(View itemView) {
             super(itemView);
 
-            nameTextView = (TextView) itemView.findViewById(R.id.nameTextView);
-            adressTextView = (TextView) itemView.findViewById(R.id.adressTextView);
-            imageView = (ImageView) itemView.findViewById(R.id.myImage);
+            imageViewUrlToImage = (ImageView) itemView.findViewById(R.id.imageViewUrlToImage);
+            textViewPublishedAt = (TextView) itemView.findViewById(R.id.textViewPublishedAt);
+            textViewUrl = (TextView) itemView.findViewById(R.id.textViewUrl);
+            textViewDescription = (TextView) itemView.findViewById(R.id.textViewDescription);
+            textViewTitle = (TextView) itemView.findViewById(R.id.textViewTitle);
+            textViewAuthor = (TextView) itemView.findViewById(R.id.textViewAuthor);
+
+
         }
+
 
     }
 
