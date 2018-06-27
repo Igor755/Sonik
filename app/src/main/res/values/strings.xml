@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Sonik</string>
+    <string name="app_name">AddPlaceInListView</string>
     <string name="action_settings">settings</string>
     <string name="exit_point">close</string>
 

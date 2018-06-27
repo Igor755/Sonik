@@ -3,6 +3,7 @@ package com.example.imetlin.sonik;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -37,7 +38,12 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.PlacePhotoMetadata;
@@ -45,6 +51,8 @@ import com.google.android.gms.location.places.PlacePhotoMetadataBuffer;
 import com.google.android.gms.location.places.PlacePhotoMetadataResult;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
+
+import com.cpaleadtrackingsdk.CPAleadTrack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,6 +124,9 @@ public class MainActivity extends AppCompatActivity implements
                 .enableAutoManage(this, this)
                 .build();
 
+        CPAleadTrack.track(this);
+
+
 
     }
 
@@ -157,8 +168,6 @@ public class MainActivity extends AppCompatActivity implements
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.action_settings:
-                return true;
             case R.id._action_close:
                 finishAffinity();
                 this.finish();
@@ -234,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements
             getContentResolver().insert(MyBase.PlaceEntry.CONTENT_URI, contentValues);
 
 
-            placePhotosTask(placeID);
+          //  placePhotosTask(placeID);
 
             refreshPlacesData();
 
@@ -245,97 +254,6 @@ public class MainActivity extends AppCompatActivity implements
 
         }
     }
-    abstract class PhotoTask extends AsyncTask<String, Void, PhotoTask.AttributedPhoto> {
-
-        private int mHeight;
-
-        private int mWidth;
-
-        public PhotoTask(int width, int height) {
-            mHeight = height;
-            mWidth = width;
-        }
-
-        /**
-         * Loads the first photo for a place id from the Geo Data API.
-         * The place id must be the first (and only) parameter.
-         */
-        @Override
-        protected AttributedPhoto doInBackground(String... params) {
-            if (params.length != 1) {
-                return null;
-            }
-            placeID = params[0];
-
-
-
-            AttributedPhoto attributedPhoto = null;
-
-             result = Places.GeoDataApi
-                    .getPlacePhotos(mClient, placeID).await();
-
-            if (result.getStatus().isSuccess()) {
-                PlacePhotoMetadataBuffer photoMetadataBuffer = result.getPhotoMetadata();
-                if (photoMetadataBuffer.getCount() > 0 && !isCancelled()) {
-                    // Get the first bitmap and its attributions.
-                    PlacePhotoMetadata photo = photoMetadataBuffer.get(0);
-                    CharSequence attribution = photo.getAttributions();
-                    // Load a scaled bitmap for this photo.
-                    Bitmap image = photo.getScaledPhoto(mClient, mWidth, mHeight).await()
-                            .getBitmap();
-
-                    attributedPhoto = new AttributedPhoto(attribution, image);
-                }
-                // Release the PlacePhotoMetadataBuffer.
-                photoMetadataBuffer.release();
-            }
-            return attributedPhoto;
-        }
-
-        /**
-         * Holder for an image and its attribution.
-         */
-        class AttributedPhoto {
-
-            public final CharSequence attribution;
-
-            public final Bitmap bitmap;
-
-            public AttributedPhoto(CharSequence attribution, Bitmap bitmap) {
-                this.attribution = attribution;
-                this.bitmap = bitmap;
-            }
-        }
-    }
-    private void placePhotosTask(String placeid) {
-
-
-
-
-        myImage = (ImageView) findViewById(R.id.myImage);
-
-
-
-        new PhotoTask(myImage.getMaxWidth(), myImage.getHeight()) {
-            @Override
-            protected void onPreExecute() {
-                // Display a temporary image to show while bitmap is loading.
-                myImage.setImageResource(R.drawable.ic_add_circle_outline_white_48dp);
-            }
-
-            @Override
-            protected void onPostExecute(AttributedPhoto attributedPhoto) {
-                if (attributedPhoto != null) {
-
-                    myImage.setImageBitmap(attributedPhoto.bitmap);
-
-
-
-                }
-            }
-        }.execute(placeid);
-    }
-
 
 
 
@@ -381,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements
         }).start();
     }
     protected void onDestroy() {
-        photoMetadataBuffer.release();
+
         mClient.disconnect();
         super.onDestroy();
     }

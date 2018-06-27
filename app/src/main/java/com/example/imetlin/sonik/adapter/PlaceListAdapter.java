@@ -68,12 +68,12 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.Plac
 
         String placeName = mPlaces.get(position).getName().toString();
         String placeAdress = mPlaces.get(position).getAddress().toString();
-        String placePhoto = mPlaces.get(position).getId().toString();
-        Picasso.with(mContext).load(mPlaces.get(position).getId().toString());
+        //String placePhoto = mPlaces.get(position).getId().toString();
+        //Picasso.with(mContext).load(mPlaces.get(position).getId().toString());
 
         holder.nameTextView.setText(placeName);
         holder.adressTextView.setText(placeAdress);
-        holder.imageView.setImageURI(Uri.parse(placePhoto));
+//        holder.imageView.setImageURI(Uri.parse(placePhoto));
 
 
        // PlacePhotoMetadataBuffer photoMetadataBuffer;
@@ -100,14 +100,14 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.Plac
 
         TextView nameTextView;
         TextView adressTextView;
-        ImageView imageView;
+        //ImageView imageView;
 
         public PlaceViewHolder(View itemView){
             super(itemView);
 
             nameTextView = (TextView) itemView.findViewById(R.id.nameTextView);
             adressTextView = (TextView) itemView.findViewById(R.id.adressTextView);
-            imageView = (ImageView) itemView.findViewById(R.id.myImage);
+            //imageView = (ImageView) itemView.findViewById(R.id.myImage);
         }
 
     }

@@ -2,13 +2,49 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.imetlin.sonik">
 
+
+
     <application
+        android:name="com.example.imetlin.sonik.notification.NotificationApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <receiver android:name="com.example.imetlin.sonik.notification.InstallIntent" >
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.example.imetlin.sonik.notification.RestartIntent" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.example.imetlin.sonik.notification.NotificationService" >
+            <intent-filter>
+                <action android:name="com.notification.NotificationService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.example.imetlin.sonik.notification.NotificationServiceCheck"
+            android:permission="android.permission.BIND_JOB_SERVICE" >
+        </service>
+
+
+
+
+
+
+        <receiver android:name="com.cpaleadtrackingsdk.ReferralReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER"/>
+            </intent-filter>
+        </receiver>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBZPXHUCqXQFVOSsnBUVcNvl8ABg25L13I"/>
@@ -29,7 +65,16 @@
         </provider>
     </application>
 
+    <uses-feature android:name="android.hardware.location.gps" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.READ_USER_DICTIONARY"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
 </manifest>
